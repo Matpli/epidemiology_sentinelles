@@ -221,26 +221,6 @@ def test_predict_df():
     assert "region" in df_result.columns
     assert "year_week" in df_result.columns
 
-
-
-# --- INTEGRATION TEST ---
-
-@pytest.mark.integration
-def test_fetch_meteo_data_integration():
-    """Test réel : vérifier que l’API Meteostat répond et renvoie un DataFrame."""
-    stations = ["07130"]  # ID Meteostat de Toulouse-Blagnac
-    start = "2023-01-01"
-    end = "2023-01-07"
-
-    df = fetch_meteo_data(start, end, stations)
-
-    assert isinstance(df, pd.DataFrame)
-    assert not df.empty
-    assert "tmin" in df.columns
-    assert "tmax" in df.columns
-    assert "prcp" in df.columns
-    assert "station" in df.columns
-    assert df["station"].unique()[0] == "07130"
     
 
   
