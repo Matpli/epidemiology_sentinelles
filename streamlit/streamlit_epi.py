@@ -36,7 +36,7 @@ def load_data():
     # Création d'un client S3 avec boto3
     s3_client = boto3.client('s3')
     bucket = 'sentinelles'
-    key = 'predicted_incidence.csv'
+    #key = 'predicted_incidence.csv'
     key = 'predictions.csv'
      #  nom correspond exactement à l'objet dans S3
     
@@ -47,6 +47,7 @@ def load_data():
     
     # read dataframe
     df = pd.read_csv(StringIO(data))
+
     return df
 # --- Chargement du shapefile des régions ---
 @st.cache_data
@@ -65,7 +66,12 @@ last_week = df_predict["week"].max()
 df_predict = df_predict[df_predict["week"] == last_week]
 df_predict.rename(columns={'predicted_inc100': 'inc100'}, inplace=True)
 df_predict["week"] = last_week + 1
+# Dernières lignes
+last_rows = df_.tail(n)
 
+# Affichage dans Streamlit
+st.write(f"Les {n} dernières lignes du dataframe :")
+st.dataframe(last_rows)
 
 df = pd.concat([df_, df_predict])
 
