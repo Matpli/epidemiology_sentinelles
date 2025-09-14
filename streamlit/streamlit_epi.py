@@ -172,7 +172,60 @@ if not df.empty:
 else:
     st.write("Données non disponibles")
 
+########################### MAP PREDICTED WEEK ###############################
 
+# On prend uniquement les données de la semaine prédite (max_week)
+df_pred_week = df_indicator[df_indicator['week'] == max_week]
+
+if not df_pred_week.empty:
+st.markdown(
+    f"""
+    <h3 style="text-align: center; font-weight: bold; color: #FF6347;">
+        🔮 Predicted incidence map for week {predicted_week} - {selected_indicator}
+    </h3>
+    """, 
+    unsafe_allow_html=True
+)
+
+    # Conversion et merge avec le geojson
+    df_pred_week["geo_insee"] = df_pred_week["geo_insee"].astype(int)
+    merged_pred = geojson.merge(df_pred_week, on="geo_insee", how="left")
+
+    # Création d'une nouvelle carte
+    m_pred = folium.Map(location=[46.603354, 1.888334], zoom_start=5.6)
+
+    folium.Choropleth(
+        geo_data=merged_pred,
+        name="Choropleth",
+        data=merged_pred,
+        columns=["geo_insee", "inc100"],
+        key_on="feature.properties.geo_insee",
+        fill_color="YlOrRd",
+        fill_opacity=0.8,
+        line_opacity=0.5,
+        legend_name="Predicted incidence (inc100)",
+    ).add_to(m_pred)
+
+    folium.GeoJson(
+        merged_pred,
+        name="Regions",
+        style_function=lambda feature: {
+            "fillColor": colormap(feature["properties"]["inc100"]) if feature["properties"]["inc100"] else "gray",
+            "color": "black",
+            "weight": 1,
+            "fillOpacity": 0.8,
+        },
+        tooltip=folium.GeoJsonTooltip(
+            fields=["nom", "inc100"],
+            aliases=["Région :", "Predicted incidence :"],
+            localize=True,
+            sticky=False,
+            labels=True,
+            style="background-color: white; color: black; font-size: 12px; padding: 5px;",
+        ),
+    ).add_to(m_pred)
+
+    folium_static(m_pred)
 ################### Graphique ############################
 st.markdown(
     """
