@@ -85,14 +85,18 @@ if not df.empty:
 
     # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
     week_dict = {}
-    for week, year in zip(df_indicator['week'], df_indicator['year']):
-        start_date = pd.to_datetime(f"{year}{str(week).zfill(2)}0", format="%Y%W%w")
+    for week, year in zip(df_pred['week'], df_pred['year']):
+        # Premier jour de l'année
+        jan1 = pd.Timestamp(year=int(year), month=1, day=1)
+        # Début de la semaine = jan1 + (week-1)*7 jours
+        start_date = jan1 + pd.Timedelta(days=(week-1)*7)
+        # Fin de la semaine = début + 6 jours
         end_date = start_date + pd.Timedelta(days=6)
         week_dict[week] = f"{start_date.date()} - {end_date.date()}"
 
     # Créer liste déroulante avec les dates
     week_options = [week_dict[w] for w in sorted(week_dict.keys())]
-    selected_week_str = st.selectbox("Select week (2025):", week_options)
+    selected_week_str = st.selectbox("Select week (2025):", week_options, index=-1)
 
     # Retrouver la semaine correspondante à partir de la sélection
     selected_week = [w for w, d in week_dict.items() if d == selected_week_str][0]
