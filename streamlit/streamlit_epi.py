@@ -85,12 +85,14 @@ if not df.empty:
 
     # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
     week_dict = {}
-    for week, year in zip(df_indicator['week'], df_indicator['year']):
-        # Premier jour de l'année
+    for week, year in zip(df_pred['week'], df_pred['year']):
+        # 1er janvier de l'année
         jan1 = pd.Timestamp(year=int(year), month=1, day=1)
-        # Début de la semaine = jan1 + (week-1)*7 jours
-        start_date = jan1 + pd.Timedelta(days=(week-1)*7)
-        # Fin de la semaine = début + 6 jours
+        # Lundi de la semaine contenant le 1er janvier (peut être dans l'année précédente)
+        first_monday = jan1 - pd.Timedelta(days=jan1.weekday())
+        # Début de la semaine sélectionnée
+        start_date = first_monday + pd.Timedelta(days=(week-1)*7)
+        # Fin de la semaine
         end_date = start_date + pd.Timedelta(days=6)
         week_dict[week] = f"{start_date.date()} - {end_date.date()}"
 
