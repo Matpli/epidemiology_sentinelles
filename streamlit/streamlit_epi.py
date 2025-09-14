@@ -178,14 +178,14 @@ else:
 df_pred_week = df_indicator[df_indicator['week'] == max_week]
 
 if not df_pred_week.empty:
-st.markdown(
-    f"""
-    <h3 style="text-align: center; font-weight: bold; color: #FF6347;">
-        🔮 Predicted incidence map for week {predicted_week} - {selected_indicator}
-    </h3>
-    """, 
-    unsafe_allow_html=True
-)
+    st.markdown(
+        f"""
+        <h3 style="text-align: center; font-weight: bold; color: #FF6347;">
+            🔮 Predicted incidence map for week {predicted_week} - {selected_indicator}
+        </h3>
+        """, 
+        unsafe_allow_html=True
+    )
 
     # Conversion et merge avec le geojson
     df_pred_week["geo_insee"] = df_pred_week["geo_insee"].astype(int)
@@ -224,7 +224,7 @@ st.markdown(
             style="background-color: white; color: black; font-size: 12px; padding: 5px;",
         ),
     ).add_to(m_pred)
-
+  
     folium_static(m_pred)
 ################### Graphique ############################
 st.markdown(
