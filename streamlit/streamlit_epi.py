@@ -80,17 +80,29 @@ if not df.empty:
         # Menu déroulant pour sélectionner un indicateur
         selected_indicator = st.selectbox("Select disease :", df["indicator"].unique())
 
-        # Filtrer les données selon l'indicateur sélectionné
-        df_indicator = df[df["indicator"] == selected_indicator]
+    # Filtrer sur l'indicateur sélectionné
+    df_indicator = df[df["indicator"] == selected_indicator]
 
-        min_week = df_indicator['week'].min()
-        max_week = df_indicator['week'].max()
+    # Calcul des dates de début et fin de semaine
+    df_indicator["start_date"] = pd.to_datetime(
+        df_indicator["year"].astype(str) + df_indicator["week"].astype(str).str.zfill(2) + "1",
+        format="%Y%W%w"
+    )
+    df_indicator["end_date"] = df_indicator["start_date"] + pd.Timedelta(days=6)
 
-        # Slider pour sélectionner la semaine
-        selected_week = st.slider("Select week (2025):", min_week, max_week, min_week)
+    # Créer les options de la liste déroulante : "YYYY-MM-DD - YYYY-MM-DD"
+    week_options = [f"{row.start_date.date()} - {row.end_date.date()}" for _, row in df_indicator.iterrows()]
 
-    # Message si la semaine sélectionnée est la dernière (prédiction)
-    if selected_week == max_week:
+    # Liste déroulante pour sélectionner la semaine
+    selected_week_str = st.selectbox("Select week (2025):", week_options)
+
+    # Récupérer start_date et end_date correspondant à la sélection
+    start_str, end_str = selected_week_str.split(" - ")
+    selected_start = pd.to_datetime(start_str)
+    selected_end = pd.to_datetime(end_str)
+
+    # Message si c'est la dernière semaine (prédiction)
+    if selected_end == df_indicator["end_date"].max():
         st.markdown(f""" 
         <h4 style="text-align: center; font-weight: bold; color: #FFA500;">
             Predicted incidence for next week
@@ -100,10 +112,10 @@ if not df.empty:
         </p>""", 
         unsafe_allow_html=True
     )
-    ########################### MAP ###############################
 
     # Filtrer les données pour la semaine sélectionnée
-    df_week = df_indicator[df_indicator['week'] == selected_week]
+    df_week = df_indicator[(df_indicator["start_date"] == selected_start) & (df_indicator["end_date"] == selected_end)]
+
     
 
     for region in df_week["geo_name"].unique():
@@ -172,60 +184,6 @@ if not df.empty:
 else:
     st.write("Données non disponibles")
 
-########################### MAP PREDICTED WEEK ###############################
-
-# On prend uniquement les données de la semaine prédite (max_week)
-df_pred_week = df_indicator[df_indicator['week'] == max_week]
-
-if not df_pred_week.empty:
-    st.markdown(
-        f"""
-        <h3 style="text-align: center; font-weight: bold; color: #FF6347;">
-            🔮 Predicted incidence map for week {max_week} - {selected_indicator}
-        </h3>
-        """, 
-        unsafe_allow_html=True
-    )
-
-    # Conversion et merge avec le geojson
-    df_pred_week["geo_insee"] = df_pred_week["geo_insee"].astype(int)
-    merged_pred = geojson.merge(df_pred_week, on="geo_insee", how="left")
-
-    # Création d'une nouvelle carte
-    m_pred = folium.Map(location=[46.603354, 1.888334], zoom_start=5.6)
-
-    folium.Choropleth(
-        geo_data=merged_pred,
-        name="Choropleth",
-        data=merged_pred,
-        columns=["geo_insee", "inc100"],
-        key_on="feature.properties.geo_insee",
-        fill_color="YlOrRd",
-        fill_opacity=0.8,
-        line_opacity=0.5,
-        legend_name="Predicted incidence (inc100)",
-    ).add_to(m_pred)
-
-    folium.GeoJson(
-        merged_pred,
-        name="Regions",
-        style_function=lambda feature: {
-            "fillColor": colormap(feature["properties"]["inc100"]) if feature["properties"]["inc100"] else "gray",
-            "color": "black",
-            "weight": 1,
-            "fillOpacity": 0.8,
-        },
-        tooltip=folium.GeoJsonTooltip(
-            fields=["nom", "inc100"],
-            aliases=["Région :", "Predicted incidence :"],
-            localize=True,
-            sticky=False,
-            labels=True,
-            style="background-color: white; color: black; font-size: 12px; padding: 5px;",
-        ),
-    ).add_to(m_pred)
-  
-    folium_static(m_pred)
 ################### Graphique ############################
 st.markdown(
     """
