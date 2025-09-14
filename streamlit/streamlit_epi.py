@@ -85,8 +85,10 @@ if not df.empty:
 
     # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
     week_dict = {}
+    df_pred['date'] = pd.to_datetime(
+
     for week, year in zip(df_indicator['week'], df_indicator['year']):
-        start_date = pd.to_datetime(f"{year}{str(week).zfill(2)}1", format="%Y%W%w")
+        start_date = pd.to_datetime(f"{year}{str(week).zfill(2)}0", format="%Y%W%w")
         end_date = start_date + pd.Timedelta(days=6)
         week_dict[week] = f"{start_date.date()} - {end_date.date()}"
 
@@ -203,6 +205,7 @@ df_pred['date'] = pd.to_datetime(
     df_pred['year'].astype(str) + df_pred['week'].astype(str).str.zfill(2) + '0',
     format='%Y%U%w'
 )
+
 df_pred = df_pred.drop(["year", "week"], axis=1)
 
 # Trier par date et réinitialiser l'index
