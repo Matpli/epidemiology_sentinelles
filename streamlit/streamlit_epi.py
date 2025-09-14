@@ -80,6 +80,9 @@ if not df.empty:
         # Menu déroulant pour sélectionner un indicateur
         selected_indicator = st.selectbox("Select disease :", df["indicator"].unique())
 
+    # Filtrer sur l'indicateur sélectionné
+    df_indicator = df[df["indicator"] == selected_indicator]
+
     # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
     week_dict = {}
     for week, year in zip(df_indicator['week'], df_indicator['year']):
