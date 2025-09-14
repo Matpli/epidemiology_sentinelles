@@ -181,7 +181,7 @@ if not df_pred_week.empty:
     st.markdown(
         f"""
         <h3 style="text-align: center; font-weight: bold; color: #FF6347;">
-            🔮 Predicted incidence map for week {predicted_week} - {selected_indicator}
+            🔮 Predicted incidence map for week {max_week} - {selected_indicator}
         </h3>
         """, 
         unsafe_allow_html=True
