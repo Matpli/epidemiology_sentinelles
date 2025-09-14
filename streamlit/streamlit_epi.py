@@ -85,7 +85,7 @@ if not df.empty:
 
     # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
     week_dict = {}
-    for week, year in zip(df_pred['week'], df_pred['year']):
+    for week, year in zip(df_indicator['week'], df_indicator['year']):
         # 1er janvier de l'année
         jan1 = pd.Timestamp(year=int(year), month=1, day=1)
         # Lundi de la semaine contenant le 1er janvier (peut être dans l'année précédente)
