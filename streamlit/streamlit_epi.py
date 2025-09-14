@@ -96,7 +96,7 @@ if not df.empty:
 
     # Créer liste déroulante avec les dates
     week_options = [week_dict[w] for w in sorted(week_dict.keys())]
-    selected_week_str = st.selectbox("Select week (2025):", week_options, index=-1)
+    selected_week_str = st.selectbox("Select week (2025):", week_options, index=len(week_options))
 
     # Retrouver la semaine correspondante à partir de la sélection
     selected_week = [w for w, d in week_dict.items() if d == selected_week_str][0]
