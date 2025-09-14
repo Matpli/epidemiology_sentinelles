@@ -10,6 +10,6 @@ branca==0.8.1
 folium==0.19.4 
 geopandas==1.0.1
 botocore==1.37.7
-
+streamlit_folium==0.24.0
 
 
