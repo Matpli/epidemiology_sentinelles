@@ -1,8 +1,15 @@
-streamlit==1.39.0
-pandas==2.2.2
-boto3==1.35.36
+streamlit==1.43.0
+pandas==2.2.3
+numpy==1.26.4
+matplotlib==3.10.0
+scikit-learn==1.6.1
+plotly==5.24.1
+seaborn==0.13.2   # si tu en as besoin
+boto3==1.37.7
+branca==0.8.1
+folium==0.19.4 
 geopandas==1.0.1
-folium==0.17.0
-streamlit-folium==0.22.0
-branca==0.7.2
-matplotlib==3.9.2
+botocore==1.37.7
+
+
+
