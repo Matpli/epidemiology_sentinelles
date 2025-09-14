@@ -80,29 +80,22 @@ if not df.empty:
         # Menu déroulant pour sélectionner un indicateur
         selected_indicator = st.selectbox("Select disease :", df["indicator"].unique())
 
-    # Filtrer sur l'indicateur sélectionné
-    df_indicator = df[df["indicator"] == selected_indicator]
+    # Créer dictionnaire week -> "YYYY-MM-DD - YYYY-MM-DD"
+    week_dict = {}
+    for week, year in zip(df_indicator['week'], df_indicator['year']):
+        start_date = pd.to_datetime(f"{year}{str(week).zfill(2)}1", format="%Y%W%w")
+        end_date = start_date + pd.Timedelta(days=6)
+        week_dict[week] = f"{start_date.date()} - {end_date.date()}"
 
-    # Calcul des dates de début et fin de semaine
-    df_indicator["start_date"] = pd.to_datetime(
-        df_indicator["year"].astype(str) + df_indicator["week"].astype(str).str.zfill(2) + "1",
-        format="%Y%W%w"
-    )
-    df_indicator["end_date"] = df_indicator["start_date"] + pd.Timedelta(days=6)
-
-    # Créer les options de la liste déroulante : "YYYY-MM-DD - YYYY-MM-DD"
-    week_options = [f"{row.start_date.date()} - {row.end_date.date()}" for _, row in df_indicator.iterrows()]
-
-    # Liste déroulante pour sélectionner la semaine
+    # Créer liste déroulante avec les dates
+    week_options = [week_dict[w] for w in sorted(week_dict.keys())]
     selected_week_str = st.selectbox("Select week (2025):", week_options)
 
-    # Récupérer start_date et end_date correspondant à la sélection
-    start_str, end_str = selected_week_str.split(" - ")
-    selected_start = pd.to_datetime(start_str)
-    selected_end = pd.to_datetime(end_str)
+    # Retrouver la semaine correspondante à partir de la sélection
+    selected_week = [w for w, d in week_dict.items() if d == selected_week_str][0]
 
     # Message si c'est la dernière semaine (prédiction)
-    if selected_end == df_indicator["end_date"].max():
+    if selected_week == df_indicator['week'].max():
         st.markdown(f""" 
         <h4 style="text-align: center; font-weight: bold; color: #FFA500;">
             Predicted incidence for next week
@@ -113,9 +106,10 @@ if not df.empty:
         unsafe_allow_html=True
     )
 
-    # Filtrer les données pour la semaine sélectionnée
-    df_week = df_indicator[(df_indicator["start_date"] == selected_start) & (df_indicator["end_date"] == selected_end)]
+    ########################### MAP ###############################
 
+    # Filtrer les données pour la semaine sélectionnée
+    df_week = df_indicator[df_indicator['week'] == selected_week]
     
 
     for region in df_week["geo_name"].unique():
